@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/realm/swiftlint:0.65.1   # pinned, like the runners
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: swiftlint lint --strict --reporter github-actions-logging   # inline PR annotations
 
   swift-format:
@@ -25,12 +25,12 @@ jobs:
     runs-on: ubuntu-latest
     container: swift:6.3            # same swift-format as the local 6.3 toolchain
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: scripts/swift-format-lint.sh
 
   architecture:
     name: Architecture rules
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: scripts/check-architecture.sh

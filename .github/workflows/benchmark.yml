@@ -12,7 +12,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-xcode
       - name: Run benchmark against the live API
         working-directory: Packages/Core
@@ -26,7 +26,7 @@ jobs:
             echo "## REST vs GraphQL (data-center network: compare request counts, not timings, with a phone)"
             cat "${{ runner.temp }}/benchmark.md"
           } >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: benchmark
           path: ${{ runner.temp }}/benchmark.md

@@ -23,14 +23,14 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-xcode
 
       - name: Generate DocC for each module
         # The same script as `make docs`. The base path is the repo name, for <user>.github.io/<repo>/.
         run: scripts/build-docs.sh "${GITHUB_REPOSITORY#*/}"
 
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: Packages/Core/_site
 
