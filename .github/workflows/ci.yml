@@ -19,7 +19,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-xcode
 
       - name: Build with strict target-dependency checks
@@ -36,7 +36,7 @@ jobs:
     timeout-minutes: 45
     needs: package            # don't spend simulator minutes if the package is broken
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-xcode
 
       - name: Pick simulator
@@ -60,7 +60,7 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: RickVerse-xcresult
           path: build/RickVerse.xcresult
