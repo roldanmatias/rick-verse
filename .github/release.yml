@@ -1,0 +1,19 @@
+# Groups auto-generated release notes by architectural layer, using the labels from labeler.yml.
+changelog:
+  exclude:
+    labels: [skip-changelog]
+  categories:
+    - title: 🧠 Domain
+      labels: [domain]
+    - title: 🌐 Networking & REST
+      labels: [networking, rest]
+    - title: 🔷 GraphQL / Apollo
+      labels: [graphql]
+    - title: 🧩 ViewModels
+      labels: [presentation]
+    - title: 📱 App & UI
+      labels: [app]
+    - title: 🛠 CI, docs & dependencies
+      labels: [ci, docs, dependencies]
+    - title: Other changes
+      labels: ["*"]

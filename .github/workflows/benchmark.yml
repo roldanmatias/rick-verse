@@ -1,0 +1,32 @@
+name: Benchmark
+
+# Manual only: it sends ~700 requests to the public API and takes ~8 minutes (cool-downs avoid 429s).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-xcode
+      - name: Run benchmark against the live API
+        working-directory: Packages/Core
+        env:
+          RUN_BENCHMARKS: "1"
+          BENCHMARK_OUTPUT: ${{ runner.temp }}/benchmark.md
+        run: swift test --filter BenchmarkTests
+      - name: Publish results
+        run: |
+          {
+            echo "## REST vs GraphQL (data-center network: compare request counts, not timings, with a phone)"
+            cat "${{ runner.temp }}/benchmark.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: benchmark
+          path: ${{ runner.temp }}/benchmark.md

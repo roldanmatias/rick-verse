@@ -1,0 +1,12 @@
+# Tests trade some production rules for readability: fixtures are force-cast and force-unwrapped
+# on purpose, because a crash IS the test failure, and table-driven tests use short names and long bodies.
+disabled_rules:
+  - force_unwrapping
+  - force_cast
+  - force_try
+  - implicitly_unwrapped_optional
+  - identifier_name
+  - large_tuple
+  - function_body_length
+  - type_body_length
+  - file_length

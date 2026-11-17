@@ -1,0 +1,65 @@
+name: API contract (nightly)
+
+on:
+  schedule:
+    - cron: "17 6 * * *"     # 03:17 Buenos Aires. Off the hour, avoiding the scheduling rush at :00.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  contract-tests:
+    name: Live REST + GraphQL contract tests
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-xcode
+      - name: Run contract tests against rickandmortyapi.com
+        working-directory: Packages/Core
+        env:
+          RUN_CONTRACT_TESTS: "1"
+        run: swift test --filter ContractTests
+
+  schema-drift:
+    name: GraphQL schema drift
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-xcode
+
+      - name: Install Apollo CLI
+        run: make apollo-cli
+
+      - name: Download the live schema
+        working-directory: Packages/Core
+        run: ./apollo-ios-cli fetch-schema
+
+      - name: Compare with the committed schema
+        id: drift
+        run: |
+          if git diff --quiet -- Packages/Core/GraphQL/schema.graphqls; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            { echo '~~~diff'; git --no-pager diff -- Packages/Core/GraphQL/schema.graphqls | head -c 60000; echo '~~~'; } > schema.diff
+            cat schema.diff >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Open an issue (once)
+        if: steps.drift.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          open=$(gh issue list --label schema-drift --state open --json number --jq 'length')
+          if [[ "$open" == "0" ]]; then
+            gh issue create \
+              --title "GraphQL schema changed upstream ($(date +%F))" \
+              --label schema-drift,graphql \
+              --body-file schema.diff
+          else
+            echo "An open schema-drift issue already exists, so no new issue was created."
+          fi

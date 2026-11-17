@@ -1,0 +1,18 @@
+# One page of the cast list. `info.next` is an Int here, not a URL like in REST.
+query CastPage($page: Int!, $filter: FilterCharacter) {
+  characters(page: $page, filter: $filter) {
+    info { next }
+    results { ...CastMemberBasic }
+  }
+}
+
+# The whole character detail, episodes included, in ONE request. REST needed 52 (naive) or 2 (batch).
+query CastMemberDetail($id: ID!) {
+  character(id: $id) {
+    ...CastMemberBasic
+    gender
+    origin { id name }
+    location { id name }
+    episode { ...EpisodeBasic }
+  }
+}

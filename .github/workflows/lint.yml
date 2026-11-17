@@ -1,0 +1,36 @@
+name: Lint
+
+on:
+  pull_request:
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# None of these jobs needs Xcode, so they run on cheaper, faster-starting Linux runners.
+jobs:
+  swiftlint:
+    name: SwiftLint
+    runs-on: ubuntu-latest
+    container: ghcr.io/realm/swiftlint:0.65.1   # pinned, like the runners
+    steps:
+      - uses: actions/checkout@v6
+      - run: swiftlint lint --strict --reporter github-actions-logging   # inline PR annotations
+
+  swift-format:
+    name: swift-format
+    runs-on: ubuntu-latest
+    container: swift:6.3            # same swift-format as the local 6.3 toolchain
+    steps:
+      - uses: actions/checkout@v6
+      - run: scripts/swift-format-lint.sh
+
+  architecture:
+    name: Architecture rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: scripts/check-architecture.sh

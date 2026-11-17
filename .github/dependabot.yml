@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # All remote Swift dependencies (Apollo, swift-docc-plugin) live in the Core package.
+  - package-ecosystem: swift
+    directory: /Packages/Core
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      swift-packages:
+        patterns: ["*"]
+    labels: [dependencies]
+    commit-message:
+      prefix: "build(deps)"
+
+  # Also bumps the SHA-pinned third-party actions (it updates the version comment too).
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/*
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns: ["*"]
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: "ci(deps)"

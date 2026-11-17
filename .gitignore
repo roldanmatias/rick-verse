@@ -60,3 +60,12 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+## RickVerse
+# CI build output and the SwiftPM checkout dir used by xcodebuild -clonedSourcePackagesDirPath
+/build
+/.spm
+# Apollo codegen CLI (installed by `make apollo-cli`, version-matched to Package.resolved)
+Packages/Core/apollo-ios-cli
+# DocC output from `make docs`
+Packages/Core/_site

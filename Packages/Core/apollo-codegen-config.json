@@ -1,0 +1,46 @@
+{
+  "schemaNamespace" : "RickAndMortyAPI",
+  "input" : {
+    "schemaSearchPaths" : [
+      "GraphQL/**/*.graphqls"
+    ],
+    "operationSearchPaths" : [
+      "GraphQL/Operations/**/*.graphql"
+    ]
+  },
+  "output" : {
+    "schemaTypes" : {
+      "path" : "Sources/DataGraphQL/Generated",
+      "moduleType" : {
+        "embeddedInTarget" : {
+          "name" : "DataGraphQL",
+          "accessModifier" : "internal"
+        }
+      }
+    },
+    "operations" : {
+      "inSchemaModule" : {
+      }
+    },
+    "testMocks" : {
+      "none" : {
+      }
+    }
+  },
+  "schemaDownload" : {
+    "downloadMethod" : {
+      "introspection" : {
+        "endpointURL" : "https://rickandmortyapi.com/graphql",
+        "httpMethod" : {
+          "POST" : {
+          }
+        },
+        "includeDeprecatedInputValues" : false,
+        "outputFormat" : "SDL"
+      }
+    },
+    "downloadTimeout" : 60,
+    "headers" : [],
+    "outputPath" : "GraphQL/schema.graphqls"
+  }
+}

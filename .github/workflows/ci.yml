@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true      # a new push cancels the outdated run
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Core package · tests & coverage
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-xcode
+
+      - name: Build with strict target-dependency checks
+        working-directory: Packages/Core
+        # Fails if a module imports a target it didn't declare in Package.swift
+        run: swift build --build-tests --explicit-target-dependency-import-check error
+
+      - name: Test with coverage (gate at 80%)
+        run: make coverage
+
+  app:
+    name: iOS app · build & tests
+    runs-on: macos-26
+    timeout-minutes: 45
+    needs: package            # don't spend simulator minutes if the package is broken
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-xcode
+
+      - name: Pick simulator
+        id: sim
+        run: echo "udid=$(scripts/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Build & run unit + UI tests
+        # UI tests launch with -uiTesting, so AppContainer injects stub repositories:
+        # this job never depends on the live API.
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -workspace RickVerse.xcworkspace \
+            -scheme RickVerse \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -parallel-testing-enabled NO \
+            -clonedSourcePackagesDirPath .spm \
+            -resultBundlePath build/RickVerse.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcbeautify --renderer github-actions
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: RickVerse-xcresult
+          path: build/RickVerse.xcresult
+          retention-days: 7

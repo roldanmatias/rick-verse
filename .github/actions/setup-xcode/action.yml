@@ -1,0 +1,35 @@
+name: Setup Xcode
+description: Select Xcode, print toolchain versions, install CLI tools and cache SwiftPM.
+inputs:
+  xcode-version:
+    description: Xcode version to select (e.g. "26" picks the latest 26.x on the image)
+    default: "26"
+runs:
+  using: composite
+  steps:
+    - name: Select Xcode
+      # Third-party action pinned to a commit SHA: a tag can be moved, a SHA can't. Dependabot bumps it.
+      uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+      with:
+        xcode-version: ${{ inputs.xcode-version }}
+
+    - name: Toolchain versions
+      shell: bash
+      run: |
+        xcodebuild -version
+        swift --version
+
+    - name: Install xcbeautify
+      shell: bash
+      run: command -v xcbeautify >/dev/null || brew install xcbeautify
+
+    - name: Cache SwiftPM
+      uses: actions/cache@v4
+      with:
+        path: |
+          Packages/Core/.build
+          .spm
+          ~/Library/Caches/org.swift.swiftpm
+        key: spm-${{ runner.os }}-xcode${{ inputs.xcode-version }}-${{ hashFiles('Packages/Core/Package.resolved') }}
+        restore-keys: |
+          spm-${{ runner.os }}-xcode${{ inputs.xcode-version }}-

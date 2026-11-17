@@ -1,0 +1,14 @@
+query EpisodePage($page: Int!) {
+  episodes(page: $page) {
+    info { next }
+    results { ...EpisodeBasic }
+  }
+}
+
+# The episode and its cast in one request. REST needs 2.
+query EpisodeDetail($id: ID!) {
+  episode(id: $id) {
+    ...EpisodeBasic
+    characters { ...CastMemberBasic }
+  }
+}

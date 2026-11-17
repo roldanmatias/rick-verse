@@ -1,0 +1,25 @@
+# Labels a PR by the layers it touches (used by pr-hygiene.yml and to group release notes).
+domain:
+  - changed-files:
+      - any-glob-to-any-file: Packages/Core/Sources/Domain/**
+networking:
+  - changed-files:
+      - any-glob-to-any-file: Packages/Core/Sources/Networking/**
+rest:
+  - changed-files:
+      - any-glob-to-any-file: Packages/Core/Sources/DataREST/**
+graphql:
+  - changed-files:
+      - any-glob-to-any-file: ['Packages/Core/Sources/DataGraphQL/**', 'Packages/Core/GraphQL/**']
+presentation:
+  - changed-files:
+      - any-glob-to-any-file: Packages/Core/Sources/Presentation/**
+app:
+  - changed-files:
+      - any-glob-to-any-file: RickVerse/**
+ci:
+  - changed-files:
+      - any-glob-to-any-file: ['.github/**', 'scripts/**', 'Makefile', '.swiftlint.yml', '.swift-format']
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ['docs/**', '**/*.md']

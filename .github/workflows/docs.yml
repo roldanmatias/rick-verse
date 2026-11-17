@@ -1,0 +1,45 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Packages/Core/Sources/**"
+      - "scripts/build-docs.sh"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write          # OIDC token for the Pages deployment, so no long-lived secret is needed
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-xcode
+
+      - name: Generate DocC for each module
+        # The same script as `make docs`. The base path is the repo name, for <user>.github.io/<repo>/.
+        run: scripts/build-docs.sh "${GITHUB_REPOSITORY#*/}"
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: Packages/Core/_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

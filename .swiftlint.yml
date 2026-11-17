@@ -1,0 +1,53 @@
+# SwiftLint for the whole repo. Generated Apollo code is excluded. Test targets relax a few rules
+# through nested .swiftlint.yml files.
+included:
+  - Packages/Core/Sources
+  - Packages/Core/Tests
+  - RickVerse
+excluded:
+  - Packages/Core/Sources/DataGraphQL/Generated
+  - Packages/Core/.build
+  - .spm
+  - build
+
+opt_in_rules:
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - first_where
+  - empty_count
+  - sorted_first_last
+  - unowned_variable_capture
+
+# swift-format adds trailing commas to multi-line collections, so require them instead of fighting it.
+trailing_comma:
+  mandatory_comma: true
+
+line_length:
+  warning: 140
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+  ignores_interpolated_strings: true   # log messages and the benchmark table
+
+# swift-format puts `{` on its own line after a wrapped signature, so SwiftLint must accept that.
+opening_brace:
+  ignore_multiline_function_signatures: true
+
+# Exhaustive switches over closed enums (the error mappers) are the point, not complexity.
+cyclomatic_complexity:
+  ignores_case_statements: true
+
+# Value-type initializers (NetworkEvent, Episode, …) legitimately take 6–8 fields.
+function_parameter_count:
+  warning: 8
+  error: 10
+
+identifier_name:
+  min_length:
+    warning: 2
+    error: 1
+  excluded: [i, x, y]
+
+function_body_length:
+  warning: 80
+  error: 120

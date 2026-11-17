@@ -1,0 +1,54 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "23 7 * * 1"     # weekly, Monday
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  swift:
+    name: Analyze Swift
+    # Pinned on purpose: CodeQL can't trace builds with Xcode 27 / macOS 27 or analyze Swift 6.4.
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-xcode
+        with:
+          xcode-version: "26"
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: swift
+          build-mode: manual
+      - name: Build for analysis
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -workspace RickVerse.xcworkspace -scheme RickVerse \
+            -destination 'generic/platform=iOS Simulator' \
+            -clonedSourcePackagesDirPath .spm \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:swift
+
+  workflows:
+    name: Analyze GitHub Actions workflows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: actions
+          build-mode: none
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:actions

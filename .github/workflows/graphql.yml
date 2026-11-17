@@ -1,0 +1,35 @@
+name: GraphQL codegen
+
+# Path-filtered on purpose, so DON'T make it a required check: when these paths don't change, it
+# never reports, and the PR would wait forever.
+on:
+  pull_request:
+    paths:
+      - "Packages/Core/GraphQL/**"
+      - "Packages/Core/Sources/DataGraphQL/Generated/**"
+      - "Packages/Core/apollo-codegen-config.json"
+      - "Packages/Core/Package.resolved"
+
+permissions:
+  contents: read
+
+jobs:
+  codegen-drift:
+    name: Generated code is up to date
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-xcode
+
+      - name: Regenerate (installs the CLI version that matches the resolved library)
+        run: make graphql-generate
+
+      - name: Fail if Generated/ changed
+        run: |
+          if [[ -n "$(git status --porcelain -- Packages/Core/Sources/DataGraphQL/Generated)" ]]; then
+            git --no-pager diff --stat -- Packages/Core/Sources/DataGraphQL/Generated
+            echo "::error::Apollo generated code is stale. Run 'make graphql-generate' and commit the result."
+            exit 1
+          fi
+          echo "✅ Generated code matches operations and schema"
